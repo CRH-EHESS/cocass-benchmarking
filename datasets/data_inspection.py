@@ -6,6 +6,18 @@ import numpy as np
 import pandas as pd
 
 def inspect_class_repartition(json_file_paths, title="Class Repartition", return_dataframe=False, normalize=False,log_scale=False, legend_names=None):
+    """
+    Inspect the class repartition of a dataset given a json file or a list of json files.
+    
+    Args :
+    json_file_paths (str or list of str): The path to the json file containing the dataset. Can be a list of json files.
+    title (str): The title of the plot.
+    return_dataframe (bool): If True, return a DataFrame containing the class repartition.
+    normalize (bool): If True, normalize the class repartition by the total number of annotations for each json file given.
+    log_scale (bool): If True, plot the class repartition in log scale. (useful for highly imbalanced datasets)
+    legend_names (list of str): The names of the datasets to be displayed in the legend.
+    """
+
     if isinstance(json_file_paths, str):
         json_file_paths = [json_file_paths]
     
@@ -93,6 +105,10 @@ def inspect_class_repartition(json_file_paths, title="Class Repartition", return
         plt.show()
 
 def inspect_image_origin(json_file_paths, keywords, title="Image Origin Distribution"):
+    """
+    Inspect the origin of the images in a dataset given a json file or a list of json files, if the dataset contains images of different temporary datsets.
+    """
+    
     if isinstance(json_file_paths, str):
         json_file_paths = [json_file_paths]
     

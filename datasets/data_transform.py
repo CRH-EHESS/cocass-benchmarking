@@ -13,6 +13,13 @@ import shutil
 from pycocotools.coco import COCO
 import json
 
+"""
+Module with functions to transform datasets from one format to another and do some operations it.
+
+Allows you also to merge or augment datasets.
+"""
+
+
 def fo_export_yolo_data(
     samples,
     export_dir,

@@ -328,7 +328,8 @@ def inside_iou_filtering(data=None,json_file_path = None,
                          iou_threshold:float=0.1,
                          inplace: bool = False,
                          keep_annotations: bool = False,
-                         save: bool = True,data_garbage=None,class_agnostic: bool = True):
+                         save: bool = True,data_garbage=None,class_agnostic: bool = True,
+                         keep_abbey: bool = False):
     """
     Filter out annotations based on the IoU between their bounding boxes.
     """
@@ -340,6 +341,8 @@ def inside_iou_filtering(data=None,json_file_path = None,
     if data_garbage is None:
         data_garbage = data.copy()
         data_garbage['annotations'] = []
+    
+    id2cat = {cat['id']: cat['name'] for cat in data['categories']}
 
     # Filter out annotations based on the IoU between their bounding boxes
     filtered_annotations = []
@@ -353,6 +356,9 @@ def inside_iou_filtering(data=None,json_file_path = None,
                 if not class_agnostic and ann1['category_id'] != ann2['category_id']:
                     continue
                 if is_bbox_inside_another(ann1['bbox'], ann2['bbox'], threshold=iou_threshold):
+                    if keep_abbey:
+                        if id2cat[ann1['category_id']] in ['abbaye',"prieure"] or id2cat[ann2['category_id']] in ['abbaye','prieure']:
+                            continue
                     iou_flag = True
                     break
 
@@ -391,7 +397,8 @@ def filter_annotations(data=None,json_file_path = None,
                           keep_annotations: bool = False,
                           save: bool = True,
                           save_all: bool = False,
-                          class_agnostic: bool = False):
+                          class_agnostic: bool = False,
+                          keep_abbey: bool = False):
     """
     Filter out annotations based on confidence, aspect ratio, and IoU.
     """
@@ -419,7 +426,8 @@ def filter_annotations(data=None,json_file_path = None,
                                         inplace=inplace, keep_annotations=keep_annotations, save=save_all, class_agnostic=class_agnostic,data_garbage=data_garbage)
     
     data, data_garbage = inside_iou_filtering(data=data, iou_threshold=inside_threshold,
-                                               inplace=inplace, keep_annotations=keep_annotations, save=save_all,data_garbage=data_garbage)
+                                               inplace=inplace, keep_annotations=keep_annotations, save=save_all,data_garbage=data_garbage,
+                                               keep_abbey=keep_abbey)
     if save :
         if not inplace:
             json_file_path = os.path.join(os.path.dirname(json_file_path), 'filtered_' + os.path.basename(json_file_path))
