@@ -1,9 +1,15 @@
+import sahi
 from sahi.predict import get_prediction, get_sliced_prediction
+from sahi.utils.coco import Coco,CocoImage,CocoAnnotation,CocoPrediction
 import fiftyone as fo
 import os
 import cv2
 from PIL import Image
 import numpy as np
+
+"""
+Functions to make the link between the predictions from SAHI and the FiftyOne dataset.
+"""
 
 
 def fo_predict_simple(detection_model, sample: fo.Sample, label_field: str, **kwargs):
@@ -107,3 +113,30 @@ def fo_extract_bboxes(dataset: fo.Sample,output_directory: str, field : str = "d
 
             # Save the sub-image to disk
             img.save(f"{output_directory}/{img_name}_bbox_{i}.jpg")
+
+
+def json_from_result_as_annotation(image_path,result:sahi.prediction.PredictionResult,pred=True):
+
+    
+    with Image.open(image_path) as img:
+        width, height = img.size
+
+    coco=Coco()
+    coco_image=CocoImage(os.path.basename(image_path),height,width)
+
+    for object_pred in result.object_prediction_list:
+        if pred:
+            coco_prediction=CocoPrediction(bbox=object_pred.bbox.to_xywh(),
+                                           category_id=object_pred.category.id,
+                                           category_name=object_pred.category.name,
+                                           score=object_pred.score.value)
+        else:
+            coco_prediction=CocoAnnotation(bbox=object_pred.bbox.to_xywh(),
+                                           category_id=object_pred.category.id,
+                                           category_name=object_pred.category.name)
+        coco_image.add_annotation(coco_prediction)
+
+    coco.add_image(coco_image)
+
+    coco_json=coco.json
+    return coco_json

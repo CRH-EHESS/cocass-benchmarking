@@ -5,6 +5,11 @@ import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+
+"""
+Contains utility functions to handle the results from sahi or fiftyone to compare the models
+"""
+
 # import data_cleaning
 def load_coco_json(file_path):
     with open(file_path, 'r') as f:

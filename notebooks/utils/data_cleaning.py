@@ -2,6 +2,14 @@ import json
 from pathlib import Path
 import os
 
+"""
+This module contains utility functions for cleaning and filtering COCO-style JSON files.
+
+You will also find a function to remap image IDs and update annotations based on the categories in another JSON file. 
+
+There is as well the function to add the ambiguity matrix to the annotations.
+"""
+
 def load_coco_json(file_path):
     with open(file_path, 'r') as f:
         data = json.load(f)
@@ -165,7 +173,31 @@ def fiftyone_extraction_remapping(json_file_path1,json_file_path2,inplace=True,
         os.rename(json_file_path2, name)
         print("File has been renamed successfully.")
 
+def add_ambiguity_metric(json_file_path,inplace=True):
+    from utils.benchmarking import iou
+    import json
 
+    with open(json_file_path, 'r') as file:
+        data = json.load(file)
+    
+    for ann1 in data['annotations']:
+        ambiguity=0
+        adjacents=0
+        for ann2 in data['annotations']:
+            if ann1['image_id']==ann2['image_id']:
+                iou_value=iou(ann1['bbox'],ann2['bbox'])
+                ambiguity+=iou_value*(1-abs(ann1['score']-ann2['score']))
+                # add adjacent if the iou is not 0
+                if iou_value>0:
+                    adjacents+=1
+        ambiguity=(ambiguity/adjacents)*(1-ann1['score'])
+        ann1['ambiguity']=ambiguity
+    if not inplace:
+        with open(os.path.join(os.path.dirname(json_file_path),"_ambiguity"), 'w') as file:
+            json.dump(data, file)
+    else:
+        with open(json_file_path, 'w') as file:
+            json.dump(data, file)
 
 def confidence_filtering(data=None,json_file_path = None,
                          threshold:float=0.5,

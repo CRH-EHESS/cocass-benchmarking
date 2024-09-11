@@ -5,6 +5,12 @@ import os
 import numpy as np
 import pandas as pd
 
+"""
+Module with multiple functions to inspect the datasets to have some quantitative infos on its content.
+
+"""
+
+
 def inspect_class_repartition(json_file_paths, title="Class Repartition", return_dataframe=False, normalize=False,log_scale=False, legend_names=None):
     """
     Inspect the class repartition of a dataset given a json file or a list of json files.

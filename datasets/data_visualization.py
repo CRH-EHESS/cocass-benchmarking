@@ -6,6 +6,12 @@ import torchvision
 import os
 import torch
 
+"""
+Module with multiple functions to visualize the datasets in different formats
+
+"""
+
+
 def pth_dataset_visualize(pth_dataset : torchvision.datasets.CocoDetection,
                           num_images : int = 1,
                           img_size : int = 10,
